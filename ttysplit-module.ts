@@ -1,4 +1,4 @@
-const splitTtyrec = async (file: File, startFrame: number, endFrame: number): Promise<Uint8Array | number> => {
+const splitTtyrec = async (file: File, startFrame?: number, endFrame?: number): Promise<Uint8Array | number> => {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = new Uint8Array(arrayBuffer);
   
@@ -17,7 +17,7 @@ const splitTtyrec = async (file: File, startFrame: number, endFrame: number): Pr
       
       // check for clear frames
       const frameData = new TextDecoder().decode(frameBuffer);
-      if (frameData.indexOf('\x1B[2J') >= 0 && frameNum > closestFrameClear && frameNum < startFrame) {
+      if (frameData.indexOf('\x1B[2J') >= 0 && frameNum > closestFrameClear && startFrame !== undefined && frameNum < startFrame) {
         closestFrameClear = frameNum;
       }
       
