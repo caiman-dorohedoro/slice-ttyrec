@@ -30,7 +30,7 @@ const splitTtyrec = async (file: File, startFrame?: number, endFrame?: number): 
   }
   
   // return frame count if no start or end frame
-  if (!startFrame && !endFrame) {
+  if (startFrame === undefined && endFrame === undefined) {
     return frameNum;
   }
   
@@ -54,7 +54,7 @@ const splitTtyrec = async (file: File, startFrame?: number, endFrame?: number): 
       const frameBuffer = buffer.slice(position + 12, position + 12 + len);
       
       // if within range, add to results
-      if ((startFrame && frameNum >= startFrame) && (!endFrame || frameNum <= endFrame)) {
+      if ((startFrame === undefined || frameNum >= startFrame) && (endFrame === undefined || frameNum <= endFrame)) {
         resultChunks.push(header);
         resultChunks.push(frameBuffer);
       }
