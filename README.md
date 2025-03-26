@@ -1,31 +1,133 @@
-ttysplit
-========
+# @caiman/slice-ttyrec
 
-A simple node utility that you can use to split a ttyrec into a smaller part
+A TypeScript library for slicing ttyrec recordings, designed to work in both web browsers and Deno (Node.js compatible) environments.
+
+### Overview
+This package is a fork of [LtSquigs/ttysplit](https://github.com/LtSquigs/ttysplit), rewritten in TypeScript and modernized to work in web environments.
 
 
-Usage:
-========
+### Installation
 
-`node ttysplit.js target_file.ttyrec [start_frame] [end_frame]`
+```bash
+# For Deno (using JSR)
+deno add @caiman/slice-ttyrec
 
-The program will split the given ttyrec starting at start_frame and ending at end_frame. The split file is output on stdout.
+# For npm (coming soon)
+npm install @caiman/slice-ttyrec
+```
 
-If start_frame and end_frame are not supplied, the program instead spits out the total number of frames in the recording.
+### API
 
-I should also note, the split file does not always start at start frame, for complex applications that use ANSI escape characters to partially redraw the screen, starting at an arbitrary frame may result in strange visuals. As a result the program looks for the ANSI screen clearing sequence (At least the one used by nethack, for which this was designed) and will use the last frame before start_frame that has the clear sequence.
+```ts
+sliceTtyrec(file: File, startFrame?: number, endFrame?: number): Promise<Uint8Array | number>
+```
 
-Examples:
-========
+- **file**: A File object containing ttyrec data
+- **startFrame** (optional): The first frame to include in the slice (1-based indexing)
+- **endFrame** (optional): The last frame to include in the slice (1-based indexing)
 
-`node ttysplit.js  2011-08-05.22-58-04.ttyrec 11277 > splitRecording.ttyrec`
+- **Returns**:
+  - When called without startFrame/endFrame: Returns the total number of frames (as a number)
+  - When called with frame parameters: Returns a Uint8Array containing the sliced ttyrec data
 
-splitRecording.ttyrec will contain a recording starting from 11277 till the end of the recording (or whichever closest frame before it has an ANSI clear sequence)
+### Examples
 
-`node ttysplit.js  2011-08-05.22-58-04.ttyrec 1 500 > splitRecording.ttyrec`
+#### Browser
+```ts
+import sliceTtyrec from "@caiman/slice-ttyrec";
 
-This will split the recording from frame 1 to 500
+// Example using a file input element
+document.getElementById('fileInput').addEventListener('change', async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  try {
+    // To get the total number of frames in a ttyrec file
+    const frameCount = await sliceTtyrec(file);
+    console.log(`The ttyrec file contains ${frameCount} frames.`);
+    
+    // To extract frames 10-20 from the ttyrec file
+    const extractedFrames = await sliceTtyrec(file, 10, 20);
+    
+    // Now you can use the extracted frames (Uint8Array)
+    if (extractedFrames instanceof Uint8Array) {
+      const blob = new Blob([extractedFrames], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.download = 'extracted_frames.ttyrec';
+      document.body.appendChild(downloadLink);
+    }
+  } catch (error) {
+    console.error('Error processing ttyrec file:', error);
+  }
+});
+```
 
-`node ttysplit.js  2011-08-05.22-58-04.ttyrec `
+#### Node.js
+```ts
+import fs from 'node:fs';
+import sliceTtyrec from "@caiman/slice-ttyrec";
 
-This will output the total number of frames in the recording. For example `11283`
+async function processTtyrec(filePath) {
+  try {
+    // Read the file from disk
+    const buffer = fs.readFileSync(filePath);
+    
+    // Convert to File object (Node.js doesn't have File API natively)
+    const file = new File([buffer], 'input.ttyrec');
+    
+    // Get the total number of frames
+    const frameCount = await sliceTtyrec(file);
+    console.log(`The ttyrec file contains ${frameCount} frames.`);
+    
+    // Extract frames 10-20
+    const extractedFrames = await sliceTtyrec(file, 10, 20);
+    
+    // Save the extracted frames to disk
+    if (extractedFrames instanceof Uint8Array) {
+      fs.writeFileSync('extracted_frames.ttyrec', Buffer.from(extractedFrames));
+      console.log('Extracted frames saved to extracted_frames.ttyrec');
+    }
+  } catch (error) {
+    console.error('Error processing ttyrec file:', error);
+  }
+}
+
+// Usage example
+processTtyrec('./path/to/recording.ttyrec');
+```
+
+#### Deno
+```ts
+import sliceTtyrec from "@caiman/slice-ttyrec";
+
+async function processTtyrec(filePath: string) {
+  try {
+    // Read the file from disk
+    const fileData = await Deno.readFile(filePath);
+    
+    // Convert to File object
+    const file = new File([fileData], 'input.ttyrec');
+    
+    // Get the total number of frames
+    const frameCount = await sliceTtyrec(file);
+    console.log(`The ttyrec file contains ${frameCount} frames.`);
+    
+    // Extract frames 10-20
+    const extractedFrames = await sliceTtyrec(file, 10, 20);
+    
+    // Save the extracted frames to disk
+    if (extractedFrames instanceof Uint8Array) {
+      await Deno.writeFile('extracted_frames.ttyrec', extractedFrames);
+      console.log('Extracted frames saved to extracted_frames.ttyrec');
+    }
+  } catch (error) {
+    console.error('Error processing ttyrec file:', error);
+  }
+}
+
+// Usage example
+await processTtyrec('./path/to/recording.ttyrec');
+```

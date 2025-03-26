@@ -1,4 +1,4 @@
-const splitTtyrec = async (file: File, startFrame?: number, endFrame?: number): Promise<Uint8Array | number> => {
+const sliceTtyrec = async (file: File, startFrame?: number, endFrame?: number): Promise<Uint8Array | number> => {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = new Uint8Array(arrayBuffer);
   
@@ -98,4 +98,4 @@ const splitTtyrec = async (file: File, startFrame?: number, endFrame?: number): 
   return result;
 }
 
-export default splitTtyrec;
+export default sliceTtyrec;

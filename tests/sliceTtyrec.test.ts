@@ -1,12 +1,12 @@
 import { Buffer } from "node:buffer";
 import { expect } from "jsr:@std/expect";
-import splitTtyrec from '../ttysplit-module.ts';
+import sliceTtyrec from '../sliceTtyrec.ts';
 import { createTtyrecFrame, createMultiFrameTtyrec } from './helpers/ttyrec.ts';
 
 Deno.test('should return frame number without start end frame parameters', async () => {
   const buffer = createTtyrecFrame(0, 0, 'baced');
   const file = new File([buffer], 'test.ttyrec');
-  const result = await splitTtyrec(file);
+  const result = await sliceTtyrec(file);
   expect(result).toBe(1);
 })
 
@@ -17,7 +17,7 @@ Deno.test('should return frame number without parameters in multiple frames', as
   ];
   const buffer = createMultiFrameTtyrec(frames);
   const file = new File([buffer], 'test.ttyrec');
-  const result = await splitTtyrec(file);
+  const result = await sliceTtyrec(file);
   expect(result).toBe(2);
 })
 
@@ -28,7 +28,7 @@ Deno.test('should return splitted frames with parameters', async () => {
   ];
   const buffer = createMultiFrameTtyrec(frames);
   const file = new File([buffer], 'test.ttyrec');
-  const result = await splitTtyrec(file, 1, 2);
+  const result = await sliceTtyrec(file, 1, 2);
   
   const expected = createTtyrecFrame(1, 0, 'abc');
 
@@ -48,7 +48,7 @@ Deno.test('should throw error for invalid ttyrec file format', async () => {
   buffer.write('baced', 12);
   
   const file = new File([buffer], 'test.ttyrec');
-  await expect(splitTtyrec(file)).rejects.toThrow('Invalid ttyrec file format');
+  await expect(sliceTtyrec(file)).rejects.toThrow('Invalid ttyrec file format');
 });
 
 Deno.test('should throw error for invalid parameters', async () => {
@@ -60,20 +60,20 @@ Deno.test('should throw error for invalid parameters', async () => {
   const file = new File([buffer], 'test.ttyrec');
 
   // Test with start frame out of range
-  await expect(splitTtyrec(file, 3, 3)).rejects.toThrow('Start frame is out of range');
+  await expect(sliceTtyrec(file, 3, 3)).rejects.toThrow('Start frame is out of range');
 
   // Test with end frame out of range
-  await expect(splitTtyrec(file, 1, 3)).rejects.toThrow('End frame is out of range');
+  await expect(sliceTtyrec(file, 1, 3)).rejects.toThrow('End frame is out of range');
 
   // Test with start frame > end frame
-  await expect(splitTtyrec(file, 2, 1)).rejects.toThrow('Start frame must be less than or equal to end frame');
+  await expect(sliceTtyrec(file, 2, 1)).rejects.toThrow('Start frame must be less than or equal to end frame');
 });
 
 Deno.test('should throw error for empty file', async () => {
   const buffer = Buffer.alloc(0);
   const file = new File([buffer], 'test.ttyrec');
   
-  await expect(splitTtyrec(file)).rejects.toThrow('File is empty');
+  await expect(sliceTtyrec(file)).rejects.toThrow('File is empty');
 });
 
 Deno.test('should throw when start frame is out of range', async () => {
@@ -86,7 +86,7 @@ Deno.test('should throw when start frame is out of range', async () => {
   const file = new File([buffer], 'test.ttyrec');
   
   // Use the exact frame count (2) to avoid triggering other validations
-  await expect(splitTtyrec(file, 2, 2)).rejects.toThrow('Start frame is out of range');
+  await expect(sliceTtyrec(file, 2, 2)).rejects.toThrow('Start frame is out of range');
 });
 
 Deno.test('should throw when start frame > end frame', async () => {
@@ -101,5 +101,5 @@ Deno.test('should throw when start frame > end frame', async () => {
   const file = new File([buffer], 'test.ttyrec');
   
   // Use values that are within range but with start > end
-  await expect(splitTtyrec(file, 2, 1)).rejects.toThrow('Start frame must be less than or equal to end frame');
+  await expect(sliceTtyrec(file, 2, 1)).rejects.toThrow('Start frame must be less than or equal to end frame');
 });
