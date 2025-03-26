@@ -2,6 +2,11 @@ const splitTtyrec = async (file: File, startFrame?: number, endFrame?: number): 
   const arrayBuffer = await file.arrayBuffer();
   const buffer = new Uint8Array(arrayBuffer);
   
+  // Check for empty file
+  if (buffer.length === 0) {
+    throw new Error('File is empty');
+  }
+  
   let position = 0;
   let frameNum = 0;
   let closestFrameClear = -1;
@@ -24,8 +29,22 @@ const splitTtyrec = async (file: File, startFrame?: number, endFrame?: number): 
       frameNum++;
       position += (12 + len);
     } else {
-      console.error('Bad frame header length!');
-      break;
+      throw new Error('Invalid ttyrec file format');
+    }
+  }
+  
+  // Validate parameters if provided
+  if (startFrame !== undefined && endFrame !== undefined) {
+    // First check if start frame is greater than end frame
+    if (startFrame > endFrame) {
+      throw new Error('Start frame must be less than or equal to end frame');
+    }
+    // Then check if frames are out of range
+    if (startFrame >= frameNum) {
+      throw new Error('Start frame is out of range');
+    }
+    if (endFrame > frameNum) {
+      throw new Error('End frame is out of range');
     }
   }
   
@@ -62,8 +81,7 @@ const splitTtyrec = async (file: File, startFrame?: number, endFrame?: number): 
       frameNum++;
       position += (12 + len);
     } else {
-      console.error('Bad frame header length!');
-      break;
+      throw new Error('Invalid ttyrec file format');
     }
   }
   
