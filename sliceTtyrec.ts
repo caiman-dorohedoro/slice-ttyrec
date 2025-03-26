@@ -2,8 +2,8 @@
  * Slices a ttyrec file into a new file containing only the specified frames.
  *
  * @param file - The ttyrec file to slice.
- * @param startFrame - The first frame to include in the slice (1-based indexing).
- * @param endFrame - The last frame to include in the slice (1-based indexing).
+ * @param startFrame - The first frame to include in the slice (0-based indexing).
+ * @param endFrame - The last frame to include in the slice (0-based indexing).
  * @returns A Uint8Array containing the sliced ttyrec data, or the total number of frames if no start or end frame is provided.
  */
 const sliceTtyrec = async (file: File, startFrame?: number, endFrame?: number): Promise<Uint8Array | number> => {

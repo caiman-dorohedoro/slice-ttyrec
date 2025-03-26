@@ -46,8 +46,8 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
     const frameCount = await sliceTtyrec(file);
     console.log(`The ttyrec file contains ${frameCount} frames.`);
     
-    // To extract frames 10-20 from the ttyrec file
-    const extractedFrames = await sliceTtyrec(file, 10, 20);
+    // To extract frames 0-9 from the ttyrec file
+    const extractedFrames = await sliceTtyrec(file, 0, 9);
     
     // Now you can use the extracted frames (Uint8Array)
     if (extractedFrames instanceof Uint8Array) {
@@ -82,8 +82,8 @@ async function processTtyrec(filePath) {
     const frameCount = await sliceTtyrec(file);
     console.log(`The ttyrec file contains ${frameCount} frames.`);
     
-    // Extract frames 10-20
-    const extractedFrames = await sliceTtyrec(file, 10, 20);
+    // Extract frames 0-9
+    const extractedFrames = await sliceTtyrec(file, 0, 9);
     
     // Save the extracted frames to disk
     if (extractedFrames instanceof Uint8Array) {
@@ -115,8 +115,8 @@ async function processTtyrec(filePath: string) {
     const frameCount = await sliceTtyrec(file);
     console.log(`The ttyrec file contains ${frameCount} frames.`);
     
-    // Extract frames 10-20
-    const extractedFrames = await sliceTtyrec(file, 10, 20);
+    // Extract frames 0-9
+    const extractedFrames = await sliceTtyrec(file, 0, 9);
     
     // Save the extracted frames to disk
     if (extractedFrames instanceof Uint8Array) {
