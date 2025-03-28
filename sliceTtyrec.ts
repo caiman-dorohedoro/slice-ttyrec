@@ -1,14 +1,21 @@
+import type { Buffer } from 'node:buffer';
 /**
  * Slices a ttyrec file into a new file containing only the specified frames.
  *
- * @param file - The ttyrec file to slice.
+ * @param ttyrec - The ttyrec file to slice.
  * @param startFrame - The first frame to include in the slice (0-based indexing).
  * @param endFrame - The last frame to include in the slice (0-based indexing).
  * @returns A Uint8Array containing the sliced ttyrec data, or the total number of frames if no start or end frame is provided.
  */
-const sliceTtyrec = async (file: File, startFrame?: number, endFrame?: number): Promise<Uint8Array | number> => {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = new Uint8Array(arrayBuffer);
+const sliceTtyrec = async (ttyrec: File | Buffer, startFrame?: number, endFrame?: number): Promise<Uint8Array | number> => {
+  let buffer: Uint8Array;
+
+  if (ttyrec instanceof File) {
+    const arrayBuffer = await ttyrec.arrayBuffer();
+    buffer = new Uint8Array(arrayBuffer);
+  } else {
+    buffer = ttyrec;
+  }
   
   // Check for empty file
   if (buffer.length === 0) {
