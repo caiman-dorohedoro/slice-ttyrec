@@ -12,17 +12,17 @@ This package is a fork of [LtSquigs/ttysplit](https://github.com/LtSquigs/ttyspl
 # For Deno (using JSR)
 deno add @caiman/slice-ttyrec
 
-# For npm (coming soon)
-npm install @caiman/slice-ttyrec
+# For npm
+npx jsr add @caiman/slice-ttyrec
 ```
 
 ### API
 
 ```ts
-sliceTtyrec(file: File, startFrame?: number, endFrame?: number): Promise<Uint8Array | number>
+sliceTtyrec(ttyrc: File | Buffer, startFrame?: number, endFrame?: number): Promise<Uint8Array | number>
 ```
 
-- **file**: A File object containing ttyrec data
+- **ttyrc**: A File object containing ttyrec data or a Buffer containing ttyrec data
 - **startFrame** (optional): The first frame to include in the slice (1-based indexing)
 - **endFrame** (optional): The last frame to include in the slice (1-based indexing)
 
@@ -75,15 +75,12 @@ async function processTtyrec(filePath) {
     // Read the file from disk
     const buffer = fs.readFileSync(filePath);
     
-    // Convert to File object (Node.js doesn't have File API natively)
-    const file = new File([buffer], 'input.ttyrec');
-    
     // Get the total number of frames
-    const frameCount = await sliceTtyrec(file);
+    const frameCount = await sliceTtyrec(buffer);
     console.log(`The ttyrec file contains ${frameCount} frames.`);
     
     // Extract frames 0-9
-    const extractedFrames = await sliceTtyrec(file, 0, 9);
+    const extractedFrames = await sliceTtyrec(buffer, 0, 9);
     
     // Save the extracted frames to disk
     if (extractedFrames instanceof Uint8Array) {
@@ -106,17 +103,14 @@ import sliceTtyrec from "@caiman/slice-ttyrec";
 async function processTtyrec(filePath: string) {
   try {
     // Read the file from disk
-    const fileData = await Deno.readFile(filePath);
-    
-    // Convert to File object
-    const file = new File([fileData], 'input.ttyrec');
+    const buffer = await Deno.readFile(filePath);
     
     // Get the total number of frames
-    const frameCount = await sliceTtyrec(file);
+    const frameCount = await sliceTtyrec(buffer);
     console.log(`The ttyrec file contains ${frameCount} frames.`);
     
     // Extract frames 0-9
-    const extractedFrames = await sliceTtyrec(file, 0, 9);
+    const extractedFrames = await sliceTtyrec(buffer, 0, 9);
     
     // Save the extracted frames to disk
     if (extractedFrames instanceof Uint8Array) {
